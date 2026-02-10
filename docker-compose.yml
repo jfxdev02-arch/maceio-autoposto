@@ -32,7 +32,7 @@ services:
 
   # Evolution API - WhatsApp
   evolution:
-    image: atendai/evolution-api:v2.1.1
+    image: atendai/evolution-api:latest
     container_name: maceio-evolution
     environment:
       - SERVER_URL=http://localhost:8080
