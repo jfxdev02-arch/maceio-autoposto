@@ -40,7 +40,7 @@ services:
       - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://maceio:maceio2024@postgres:5432/maceio_autoposto
+      - DATABASE_CONNECTION_URI=postgresql://maceio:maceio2024@postgres:5432/evolution_db
       - DATABASE_CONNECTION_CLIENT_NAME=evolution
       - DATABASE_SAVE_DATA_INSTANCE=true
       - DATABASE_SAVE_DATA_NEW_MESSAGE=true
