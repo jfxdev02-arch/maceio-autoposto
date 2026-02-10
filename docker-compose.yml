@@ -56,7 +56,7 @@ services:
       - CONFIG_SESSION_PHONE_CLIENT=Maceio AutoPosto
       - CONFIG_SESSION_PHONE_NAME=Chrome
       - QRCODE_LIMIT=30
-      - LOG_LEVEL=ERROR
+      - LOG_LEVEL=ERROR,WARN,DEBUG,INFO,LOG,VERBOSE
     ports:
       - "8080:8080"
     volumes:
