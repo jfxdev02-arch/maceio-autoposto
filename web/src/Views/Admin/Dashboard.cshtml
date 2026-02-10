@@ -10,102 +10,645 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --vermelho: #E31C23; --amarelo: #FFD100; --sidebar: 250px; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
-        .sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar); height: 100vh; background: linear-gradient(180deg, var(--vermelho) 0%, #B91620 100%); padding: 1.5rem; }
-        .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; color: white; margin-bottom: 2rem; }
-        .sidebar-logo { background: var(--amarelo); width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        .sidebar-logo span { font-size: 1.5rem; font-weight: 900; color: var(--vermelho); }
-        .sidebar-nav { list-style: none; padding: 0; }
-        .sidebar-nav a { display: flex; align-items: center; gap: 0.75rem; color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; }
-        .sidebar-nav a:hover, .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; }
-        .main-content { margin-left: var(--sidebar); padding: 2rem; }
-        .stat-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .stat-icon.red { background: rgba(227,28,35,0.1); color: var(--vermelho); }
-        .stat-icon.green { background: rgba(40,167,69,0.1); color: #28a745; }
-        .stat-icon.yellow { background: rgba(255,209,0,0.2); color: #cc9900; }
-        .stat-icon.blue { background: rgba(0,123,255,0.1); color: #007bff; }
-        .stat-value { font-size: 2rem; font-weight: 700; color: #333; margin: 0.5rem 0 0.25rem; }
-        .stat-label { color: #666; font-size: 0.9rem; }
-        .chart-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-top: 1.5rem; }
-        .chart-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+        :root { 
+            --vermelho: #E31C23; 
+            --vermelho-escuro: #B91620;
+            --amarelo: #FFD100; 
+            --sidebar: 260px; 
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; margin: 0; }
+        
+        /* Sidebar */
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: var(--sidebar); 
+            height: 100vh; 
+            background: linear-gradient(180deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%); 
+            padding: 1.5rem;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .sidebar-brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            color: white; 
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-logo { 
+            background: var(--amarelo); 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .sidebar-logo span { font-size: 1.8rem; font-weight: 900; color: var(--vermelho); }
+        .sidebar-title { font-weight: 700; font-size: 1.1rem; line-height: 1.3; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 0.5rem; }
+        .sidebar-nav a { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            padding: 0.85rem 1rem; 
+            border-radius: 10px; 
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; }
+        .sidebar-nav a i { font-size: 1.1rem; width: 24px; }
+        
+        /* Main Content */
+        .main-content { margin-left: var(--sidebar); padding: 2rem 2.5rem; min-height: 100vh; }
+        
+        /* Page Header */
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 1.75rem; font-weight: 700; color: #1a1a1a; margin: 0; }
+        .page-header p { color: #666; margin: 0.25rem 0 0 0; }
+        
+        /* Stat Cards */
+        .stat-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            height: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .stat-icon { 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.4rem; 
+        }
+        .stat-icon.red { background: linear-gradient(135deg, #ff6b6b 0%, var(--vermelho) 100%); color: white; }
+        .stat-icon.green { background: linear-gradient(135deg, #69db7c 0%, #28a745 100%); color: white; }
+        .stat-icon.yellow { background: linear-gradient(135deg, #ffd43b 0%, #fab005 100%); color: white; }
+        .stat-icon.blue { background: linear-gradient(135deg, #74c0fc 0%, #007bff 100%); color: white; }
+        .stat-icon.purple { background: linear-gradient(135deg, #b197fc 0%, #7950f2 100%); color: white; }
+        .stat-icon.orange { background: linear-gradient(135deg, #ffa94d 0%, #fd7e14 100%); color: white; }
+        .stat-value { font-size: 2.25rem; font-weight: 700; color: #1a1a1a; line-height: 1; }
+        .stat-label { color: #666; font-size: 0.9rem; margin-top: 0.25rem; }
+        .stat-change { font-size: 0.8rem; padding: 0.25rem 0.5rem; border-radius: 20px; font-weight: 600; }
+        .stat-change.up { background: #d3f9d8; color: #2b8a3e; }
+        .stat-change.down { background: #ffe3e3; color: #c92a2a; }
+        
+        /* Chart Cards */
+        .chart-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 1.5rem; 
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06); 
+            margin-top: 1.5rem;
+            height: 100%;
+        }
+        .chart-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        .chart-title { font-size: 1rem; font-weight: 600; color: #1a1a1a; margin: 0; }
+        .chart-subtitle { font-size: 0.8rem; color: #666; margin: 0; }
+        
+        /* Rating Stars */
+        .rating-display { display: flex; align-items: center; gap: 0.5rem; }
+        .rating-stars { color: var(--amarelo); font-size: 1.25rem; }
+        
+        /* Progress Bars */
+        .progress-item { margin-bottom: 1rem; }
+        .progress-item:last-child { margin-bottom: 0; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .progress-label span:first-child { color: #333; font-weight: 500; }
+        .progress-label span:last-child { color: #666; }
+        .progress { height: 10px; border-radius: 5px; background: #f1f3f4; }
+        .progress-bar { border-radius: 5px; }
+        
+        /* Quick Stats List */
+        .quick-stat { 
+            display: flex; 
+            align-items: center; 
+            padding: 1rem; 
+            border-radius: 10px; 
+            background: #f8f9fa;
+            margin-bottom: 0.75rem;
+        }
+        .quick-stat:last-child { margin-bottom: 0; }
+        .quick-stat-icon { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
+        .quick-stat-info { flex: 1; }
+        .quick-stat-label { font-size: 0.85rem; color: #666; }
+        .quick-stat-value { font-size: 1.1rem; font-weight: 600; color: #1a1a1a; }
+        
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .sidebar { width: 70px; padding: 1rem 0.5rem; }
+            .sidebar-brand { justify-content: center; }
+            .sidebar-title, .sidebar-nav span { display: none; }
+            .sidebar-nav a { justify-content: center; padding: 0.85rem; }
+            .sidebar-nav a i { margin: 0; }
+            .main-content { margin-left: 70px; }
+        }
     </style>
 </head>
 <body>
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-brand">
             <div class="sidebar-logo"><span>M</span></div>
-            <div><strong>MACEIÓ</strong><br>AUTO POSTO</div>
+            <div class="sidebar-title">MACEIÓ<br>AUTO POSTO</div>
         </div>
         <ul class="sidebar-nav">
-            <li><a href="@Url.Action("Dashboard")" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-            <li><a href="@Url.Action("Contacts")"><i class="bi bi-people"></i> Contatos</a></li>
-            <li><a href="@Url.Action("ExportCsv")"><i class="bi bi-download"></i> Exportar CSV</a></li>
-            <li><a href="/" target="_blank"><i class="bi bi-globe"></i> Ver Site</a></li>
-            <li><a href="@Url.Action("Logout")"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
+            <li><a href="@Url.Action("Dashboard")" class="active"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a></li>
+            <li><a href="@Url.Action("Contacts")"><i class="bi bi-people"></i> <span>Contatos</span></a></li>
+            <li><a href="@Url.Action("ExportCsv")"><i class="bi bi-download"></i> <span>Exportar CSV</span></a></li>
+            <li><a href="/" target="_blank"><i class="bi bi-globe"></i> <span>Ver Site</span></a></li>
+            <li><a href="@Url.Action("Logout")"><i class="bi bi-box-arrow-left"></i> <span>Sair</span></a></li>
         </ul>
     </div>
+
+    <!-- Main Content -->
     <div class="main-content">
-        <h1 class="h3 mb-4">Dashboard</h1>
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p>Visão geral da pesquisa de satisfação</p>
+        </div>
+
+        <!-- Stats Row 1 -->
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
+            <div class="col-6 col-lg-3">
                 <div class="stat-card">
-                    <div class="stat-icon red"><i class="bi bi-people-fill"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="bi bi-people-fill"></i></div>
+                    </div>
                     <div class="stat-value">@Model.TotalContacts</div>
                     <div class="stat-label">Total de Contatos</div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
+            <div class="col-6 col-lg-3">
                 <div class="stat-card">
-                    <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
+                    </div>
                     <div class="stat-value">@Model.CompletedSurveys</div>
                     <div class="stat-label">Pesquisas Completas</div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
+            <div class="col-6 col-lg-3">
                 <div class="stat-card">
-                    <div class="stat-icon yellow"><i class="bi bi-hourglass-split"></i></div>
+                    <div class="stat-header">
+                        <div class="stat-icon yellow"><i class="bi bi-hourglass-split"></i></div>
+                    </div>
+                    <div class="stat-value">@Model.PendingSurveys</div>
+                    <div class="stat-label">Pesquisas Pendentes</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon blue"><i class="bi bi-percent"></i></div>
+                    </div>
                     <div class="stat-value">@Model.CompletionRate%</div>
                     <div class="stat-label">Taxa de Conclusão</div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-3">
+        </div>
+
+        <!-- Stats Row 2 -->
+        <div class="row g-4 mt-0">
+            <div class="col-6 col-lg-3">
                 <div class="stat-card">
-                    <div class="stat-icon blue"><i class="bi bi-star-fill"></i></div>
-                    <div class="stat-value">@Model.AverageRating ★</div>
+                    <div class="stat-header">
+                        <div class="stat-icon purple"><i class="bi bi-star-fill"></i></div>
+                    </div>
+                    <div class="rating-display">
+                        <span class="stat-value">@Model.AverageRating</span>
+                        <span class="rating-stars">★★★★★</span>
+                    </div>
                     <div class="stat-label">Avaliação Média</div>
                 </div>
             </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon orange"><i class="bi bi-shop"></i></div>
+                    </div>
+                    @{
+                        var convYes = Model.ConvenienceDistribution.GetValueOrDefault("Sim", 0);
+                        var convTotal = Model.ConvenienceDistribution.Values.Sum();
+                        var convPercent = convTotal > 0 ? Math.Round((double)convYes / convTotal * 100) : 0;
+                    }
+                    <div class="stat-value">@convPercent%</div>
+                    <div class="stat-label">Usam Conveniência</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon green"><i class="bi bi-arrow-repeat"></i></div>
+                    </div>
+                    @{
+                        var freq3 = Model.FrequencyDistribution.GetValueOrDefault("3 vezes ou mais", 0);
+                        var freqTotal = Model.FrequencyDistribution.Values.Sum();
+                        var freqPercent = freqTotal > 0 ? Math.Round((double)freq3 / freqTotal * 100) : 0;
+                    }
+                    <div class="stat-value">@freqPercent%</div>
+                    <div class="stat-label">Clientes Frequentes (3x+)</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon red"><i class="bi bi-fuel-pump-fill"></i></div>
+                    </div>
+                    @{
+                        var topFuel = Model.FuelDistribution.OrderByDescending(x => x.Value).FirstOrDefault();
+                    }
+                    <div class="stat-value" style="font-size: 1.5rem;">@(topFuel.Key ?? "N/A")</div>
+                    <div class="stat-label">Combustível Mais Usado</div>
+                </div>
+            </div>
         </div>
-        <div class="row">
+
+        <!-- Charts Row 1 -->
+        <div class="row g-4 mt-0">
+            <div class="col-lg-8">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Novos Contatos - Últimos 30 Dias</h3>
+                            <p class="chart-subtitle">Acompanhamento diário de novos participantes</p>
+                        </div>
+                    </div>
+                    <canvas id="dailyChart" height="100"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Distribuição de Avaliações</h3>
+                            <p class="chart-subtitle">Notas de 1 a 5 estrelas</p>
+                        </div>
+                    </div>
+                    <canvas id="ratingChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row g-4 mt-0">
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Combustível Preferido</h3>
+                            <p class="chart-subtitle">Tipo mais utilizado pelos clientes</p>
+                        </div>
+                    </div>
+                    <canvas id="fuelChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Frequência de Abastecimento</h3>
+                            <p class="chart-subtitle">Quantas vezes por semana</p>
+                        </div>
+                    </div>
+                    <canvas id="frequencyChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Uso da Conveniência</h3>
+                            <p class="chart-subtitle">Clientes que utilizam a loja</p>
+                        </div>
+                    </div>
+                    <canvas id="convenienceChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Stats Row -->
+        <div class="row g-4 mt-0">
             <div class="col-lg-6">
                 <div class="chart-card">
-                    <h3 class="chart-title">Combustível Preferido</h3>
-                    <canvas id="fuelChart"></canvas>
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Detalhamento por Combustível</h3>
+                            <p class="chart-subtitle">Quantidade de respostas por tipo</p>
+                        </div>
+                    </div>
+                    @foreach (var item in Model.FuelDistribution.OrderByDescending(x => x.Value))
+                    {
+                        var fuelTotal = Model.FuelDistribution.Values.Sum();
+                        var fuelPercent = fuelTotal > 0 ? Math.Round((double)item.Value / fuelTotal * 100) : 0;
+                        var barColor = item.Key switch {
+                            "Gasolina Comum" => "#E31C23",
+                            "Gasolina Aditivada" => "#FFD100",
+                            "Etanol" => "#28a745",
+                            "Diesel" => "#007bff",
+                            _ => "#6c757d"
+                        };
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>@item.Key</span>
+                                <span>@item.Value (@fuelPercent%)</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: @fuelPercent%; background: @barColor;"></div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.FuelDistribution.Any())
+                    {
+                        <p class="text-muted text-center py-4">Nenhum dado disponível</p>
+                    }
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="chart-card">
-                    <h3 class="chart-title">Distribuição de Avaliações</h3>
-                    <canvas id="ratingChart"></canvas>
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Detalhamento por Avaliação</h3>
+                            <p class="chart-subtitle">Quantidade de respostas por nota</p>
+                        </div>
+                    </div>
+                    @{
+                        var ratingOrder = new[] { "5 - Excelente", "4 - Bom", "3 - Regular", "2 - Ruim", "1 - Muito Ruim" };
+                    }
+                    @foreach (var rating in ratingOrder)
+                    {
+                        var count = Model.RatingDistribution.GetValueOrDefault(rating, 0);
+                        var ratingTotal = Model.RatingDistribution.Values.Sum();
+                        var ratingPercent = ratingTotal > 0 ? Math.Round((double)count / ratingTotal * 100) : 0;
+                        var ratingColor = rating.StartsWith("5") ? "#28a745" : 
+                                         rating.StartsWith("4") ? "#7cb342" :
+                                         rating.StartsWith("3") ? "#FFD100" :
+                                         rating.StartsWith("2") ? "#ff9800" : "#E31C23";
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>@rating</span>
+                                <span>@count (@ratingPercent%)</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: @ratingPercent%; background: @ratingColor;"></div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.RatingDistribution.Any())
+                    {
+                        <p class="text-muted text-center py-4">Nenhum dado disponível</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mt-0 mb-4">
+            <div class="col-lg-6">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Frequência de Visitas</h3>
+                            <p class="chart-subtitle">Detalhamento semanal</p>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon" style="background: #d3f9d8; color: #2b8a3e;">
+                            <i class="bi bi-1-circle"></i>
+                        </div>
+                        <div class="quick-stat-info">
+                            <div class="quick-stat-label">1 vez por semana</div>
+                            <div class="quick-stat-value">@Model.FrequencyDistribution.GetValueOrDefault("1 vez", 0) clientes</div>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon" style="background: #fff3bf; color: #e67700;">
+                            <i class="bi bi-2-circle"></i>
+                        </div>
+                        <div class="quick-stat-info">
+                            <div class="quick-stat-label">2 vezes por semana</div>
+                            <div class="quick-stat-value">@Model.FrequencyDistribution.GetValueOrDefault("2 vezes", 0) clientes</div>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon" style="background: #ffe3e3; color: #c92a2a;">
+                            <i class="bi bi-3-circle"></i>
+                        </div>
+                        <div class="quick-stat-info">
+                            <div class="quick-stat-label">3 vezes ou mais por semana</div>
+                            <div class="quick-stat-value">@Model.FrequencyDistribution.GetValueOrDefault("3 vezes ou mais", 0) clientes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Loja de Conveniência</h3>
+                            <p class="chart-subtitle">Utilização pelos clientes</p>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon" style="background: #d3f9d8; color: #2b8a3e;">
+                            <i class="bi bi-bag-check"></i>
+                        </div>
+                        <div class="quick-stat-info">
+                            <div class="quick-stat-label">Utilizam a conveniência</div>
+                            <div class="quick-stat-value">@Model.ConvenienceDistribution.GetValueOrDefault("Sim", 0) clientes</div>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon" style="background: #ffe3e3; color: #c92a2a;">
+                            <i class="bi bi-bag-x"></i>
+                        </div>
+                        <div class="quick-stat-info">
+                            <div class="quick-stat-label">Não utilizam</div>
+                            <div class="quick-stat-value">@Model.ConvenienceDistribution.GetValueOrDefault("Não", 0) clientes</div>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon" style="background: #e7f5ff; color: #1971c2;">
+                            <i class="bi bi-lightbulb"></i>
+                        </div>
+                        <div class="quick-stat-info">
+                            <div class="quick-stat-label">Oportunidade</div>
+                            <div class="quick-stat-value">@Model.ConvenienceDistribution.GetValueOrDefault("Não", 0) clientes para converter</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
     <script>
+        const vermelho = '#E31C23';
+        const amarelo = '#FFD100';
+        const verde = '#28a745';
+        const azul = '#007bff';
+        const roxo = '#7950f2';
+        const laranja = '#fd7e14';
+
+        // Daily Chart - Line
+        new Chart(document.getElementById('dailyChart'), {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Last30Days.Select(d => d.Date.ToString("dd/MM")))),
+                datasets: [{
+                    label: 'Novos Contatos',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Last30Days.Select(d => d.NewContacts))),
+                    borderColor: vermelho,
+                    backgroundColor: 'rgba(227, 28, 35, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: vermelho
+                }, {
+                    label: 'Concluídos',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Last30Days.Select(d => d.Completed))),
+                    borderColor: verde,
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: verde
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f3f4' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Rating Chart - Bar Horizontal
+        new Chart(document.getElementById('ratingChart'), {
+            type: 'bar',
+            data: {
+                labels: ['5⭐', '4⭐', '3⭐', '2⭐', '1⭐'],
+                datasets: [{
+                    data: [
+                        @Model.RatingDistribution.GetValueOrDefault("5 - Excelente", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("4 - Bom", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("3 - Regular", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("2 - Ruim", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("1 - Muito Ruim", 0)
+                    ],
+                    backgroundColor: [verde, '#7cb342', amarelo, laranja, vermelho],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { color: '#f1f3f4' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Fuel Chart - Doughnut
         new Chart(document.getElementById('fuelChart'), {
             type: 'doughnut',
             data: {
                 labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FuelDistribution.Keys)),
-                datasets: [{ data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FuelDistribution.Values)), backgroundColor: ['#E31C23', '#FFD100', '#28a745', '#007bff'] }]
+                datasets: [{
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FuelDistribution.Values)),
+                    backgroundColor: [vermelho, amarelo, verde, azul],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } }
+                },
+                cutout: '60%'
             }
         });
-        new Chart(document.getElementById('ratingChart'), {
-            type: 'bar',
+
+        // Frequency Chart - Pie
+        new Chart(document.getElementById('frequencyChart'), {
+            type: 'pie',
             data: {
-                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RatingDistribution.Keys)),
-                datasets: [{ label: 'Quantidade', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RatingDistribution.Values)), backgroundColor: '#FFD100' }]
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrequencyDistribution.Keys)),
+                datasets: [{
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrequencyDistribution.Values)),
+                    backgroundColor: [verde, amarelo, vermelho],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } }
+                }
+            }
+        });
+
+        // Convenience Chart - Doughnut
+        new Chart(document.getElementById('convenienceChart'), {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ConvenienceDistribution.Keys)),
+                datasets: [{
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ConvenienceDistribution.Values)),
+                    backgroundColor: [verde, vermelho],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } }
+                },
+                cutout: '60%'
             }
         });
     </script>
