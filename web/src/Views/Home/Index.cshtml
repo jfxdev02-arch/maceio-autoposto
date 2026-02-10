@@ -1,0 +1,157 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Início";
+}
+
+@section Styles {
+<style>
+    :root {
+        --vermelho: #E31C23;
+        --vermelho-escuro: #B91620;
+        --amarelo: #FFD100;
+        --branco: #FFFFFF;
+        --cinza-escuro: #1A1A1A;
+    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .hero {
+        background: linear-gradient(135deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+    .logo-badge {
+        background: var(--amarelo);
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        margin-bottom: 1rem;
+    }
+    .logo-badge span { font-size: 4rem; font-weight: 900; color: var(--vermelho); }
+    .brand-name { color: var(--branco); font-size: 3.5rem; font-weight: 800; line-height: 1.1; }
+    .brand-name .highlight { color: var(--amarelo); }
+    .tagline { color: rgba(255,255,255,0.9); font-size: 1.4rem; margin-top: 1rem; }
+    .btn-whatsapp {
+        background: #25D366;
+        color: white;
+        padding: 1rem 2.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        margin-top: 2rem;
+    }
+    .btn-whatsapp:hover { background: #20BA5C; color: white; transform: translateY(-3px); }
+    .services { padding: 5rem 0; }
+    .section-title h2 { color: var(--vermelho); font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 3rem; }
+    .service-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        height: 100%;
+    }
+    .service-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    .service-icon i { font-size: 2rem; color: var(--amarelo); }
+    .service-card h3 { color: var(--cinza-escuro); font-size: 1.3rem; font-weight: 600; }
+    .promo {
+        background: linear-gradient(135deg, var(--amarelo) 0%, #E6BC00 100%);
+        padding: 4rem 0;
+        text-align: center;
+    }
+    .promo h2 { color: var(--vermelho); font-size: 2.5rem; font-weight: 800; }
+    .promo .btn-whatsapp { background: var(--vermelho); }
+    footer { background: var(--cinza-escuro); color: white; padding: 3rem 0 1.5rem; }
+    .footer-logo { background: var(--amarelo); width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .footer-logo span { font-size: 1.8rem; font-weight: 900; color: var(--vermelho); }
+</style>
+}
+
+<section class="hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7">
+                <div class="logo-badge"><span>M</span></div>
+                <h1 class="brand-name">MACEIÓ<br><span class="highlight">AUTO POSTO</span></h1>
+                <p class="tagline">Mais que um posto. Qualidade, confiança e o melhor atendimento.</p>
+                <a href="https://wa.me/5582999999999" class="btn-whatsapp" target="_blank">
+                    <i class="bi bi-whatsapp"></i> Fale Conosco
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="services">
+    <div class="container">
+        <div class="section-title"><h2>Nossos Serviços</h2></div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-fuel-pump"></i></div>
+                    <h3>Combustíveis</h3>
+                    <p>Gasolina comum, aditivada, etanol e diesel de alta qualidade.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-shop"></i></div>
+                    <h3>Conveniência</h3>
+                    <p>Loja completa com bebidas, snacks e produtos automotivos.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-droplet"></i></div>
+                    <h3>Troca de Óleo</h3>
+                    <p>Serviço rápido com as melhores marcas do mercado.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="service-card">
+                    <div class="service-icon"><i class="bi bi-wind"></i></div>
+                    <h3>Calibragem</h3>
+                    <p>Calibragem de pneus gratuita com equipamentos de precisão.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="promo">
+    <div class="container">
+        <h2>🎉 Participe e Concorra a um TANQUE CHEIO!</h2>
+        <p class="mt-3">Responda nossa pesquisa rápida pelo WhatsApp</p>
+        <a href="https://wa.me/5582999999999?text=Oi" class="btn-whatsapp" target="_blank">
+            <i class="bi bi-whatsapp"></i> Participar Agora
+        </a>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="footer-logo"><span>M</span></div>
+            <div><strong>MACEIÓ AUTO POSTO</strong><br><small class="text-muted">Mais que um posto</small></div>
+        </div>
+        <hr class="border-secondary">
+        <p class="text-center text-muted small mb-0">&copy; @DateTime.Now.Year Maceió Auto Posto. Todos os direitos reservados.</p>
+    </div>
+</footer>

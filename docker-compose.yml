@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: maceio-postgres
+    environment:
+      POSTGRES_USER: maceio
+      POSTGRES_PASSWORD: maceio2024
+      POSTGRES_DB: maceio_autoposto
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - maceio-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U maceio -d maceio_autoposto"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (required by Evolution API)
+  redis:
+    image: redis:7-alpine
+    container_name: maceio-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - maceio-network
+
+  # Evolution API - WhatsApp
+  evolution:
+    image: atendai/evolution-api:v2.1.1
+    container_name: maceio-evolution
+    environment:
+      - SERVER_URL=http://localhost:8080
+      - AUTHENTICATION_API_KEY=maceio-autoposto-key-2024
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://maceio:maceio2024@postgres:5432/maceio_autoposto
+      - DATABASE_CONNECTION_CLIENT_NAME=evolution
+      - DATABASE_SAVE_DATA_INSTANCE=true
+      - DATABASE_SAVE_DATA_NEW_MESSAGE=true
+      - DATABASE_SAVE_MESSAGE_UPDATE=true
+      - DATABASE_SAVE_DATA_CONTACTS=true
+      - DATABASE_SAVE_DATA_CHATS=true
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://redis:6379
+      - CACHE_REDIS_PREFIX_KEY=evolution
+      - CACHE_LOCAL_ENABLED=false
+      - WEBHOOK_GLOBAL_ENABLED=false
+      - WEBHOOK_GLOBAL_URL=
+      - CONFIG_SESSION_PHONE_CLIENT=Maceio AutoPosto
+      - CONFIG_SESSION_PHONE_NAME=Chrome
+      - QRCODE_LIMIT=30
+      - LOG_LEVEL=ERROR
+    ports:
+      - "8080:8080"
+    volumes:
+      - evolution_instances:/evolution/instances
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - maceio-network
+
+  # Bot Service - Webhook Receiver
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: maceio-bot
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=maceio_autoposto;Username=maceio;Password=maceio2024
+      - EvolutionApi__BaseUrl=http://evolution:8080
+      - EvolutionApi__ApiKey=maceio-autoposto-key-2024
+      - EvolutionApi__InstanceName=maceio-whatsapp
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - evolution
+    networks:
+      - maceio-network
+
+  # Web Service - Landing Page + Admin
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: maceio-web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5001
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=maceio_autoposto;Username=maceio;Password=maceio2024
+    ports:
+      - "5001:5001"
+    depends_on:
+      - postgres
+    networks:
+      - maceio-network
+
+volumes:
+  postgres_data:
+  evolution_instances:
+
+networks:
+  maceio-network:
+    driver: bridge
