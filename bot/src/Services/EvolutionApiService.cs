@@ -13,9 +13,9 @@ public class EvolutionApiService
     {
         _httpClient = httpClient;
         _logger = logger;
-        _instanceName = config["EvolutionApi:InstanceName"] ?? "maceio-whatsapp";
+        _instanceName = config["EvolutionApi:InstanceName"] ?? "MaceioAutoPosto";
         
-        var baseUrl = config["EvolutionApi:BaseUrl"] ?? "http://localhost:8080";
+        var baseUrl = config["EvolutionApi:BaseUrl"] ?? "http://evolution:8080";
         var apiKey = config["EvolutionApi:ApiKey"] ?? "";
         
         _httpClient.BaseAddress = new Uri(baseUrl);
@@ -37,38 +37,7 @@ public class EvolutionApiService
         if (!response.IsSuccessStatusCode)
         {
             var error = await response.Content.ReadAsStringAsync();
-            _logger.LogError("Erro ao enviar mensagem: {Error}", error);
-        }
-    }
-
-    public async Task SendButtonMessageAsync(string phone, string text, List<string> buttons)
-    {
-        // Evolution API v2 usa sendList ou sendButtons dependendo da versão
-        // Usando sendButtons com formato compatível
-        var buttonList = buttons.Select((b, i) => new
-        {
-            buttonId = $"btn_{i}",
-            buttonText = new { displayText = b }
-        }).ToList();
-
-        var payload = new
-        {
-            number = phone,
-            title = "Maceió AutoPosto",
-            description = text,
-            footer = "Responda clicando em um botão",
-            buttons = buttonList
-        };
-
-        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-        
-        var response = await _httpClient.PostAsync($"/message/sendButtons/{_instanceName}", content);
-        
-        if (!response.IsSuccessStatusCode)
-        {
-            // Fallback para texto simples se botões não funcionarem
-            var fallbackText = $"{text}\n\n" + string.Join("\n", buttons.Select((b, i) => $"{i + 1}. {b}"));
-            await SendTextMessageAsync(phone, fallbackText);
+            _logger.LogError("Erro ao enviar mensagem via Evolution: {Error}", error);
         }
     }
 

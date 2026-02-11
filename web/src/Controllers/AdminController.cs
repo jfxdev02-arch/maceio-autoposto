@@ -78,7 +78,15 @@ public class AdminController : Controller
         // Média de avaliação
         var ratings = respondents
             .Where(r => !string.IsNullOrEmpty(r.RatingAnswer))
-            .Select(r => int.TryParse(r.RatingAnswer?.Split(' ')[0], out var n) ? n : 0)
+            .Select(r => r.RatingAnswer switch
+            {
+                "Excelente" => 5,
+                "Bom" => 4,
+                "Regular" => 3,
+                "Ruim" => 2,
+                "Muito ruim" => 1,
+                _ => 0
+            })
             .Where(r => r > 0)
             .ToList();
         

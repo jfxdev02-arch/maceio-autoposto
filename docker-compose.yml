@@ -1,101 +1,127 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database
+  # PostgreSQL - App Database
   postgres:
     image: postgres:15-alpine
     container_name: maceio-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: maceio
       POSTGRES_PASSWORD: maceio2024
       POSTGRES_DB: maceio_autoposto
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     networks:
       - maceio-network
+    expose:
+      - "5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U maceio -d maceio_autoposto"]
-      interval: 10s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 5
+      start_period: 10s
 
-  # Redis (required by Evolution API)
-  redis:
-    image: redis:7-alpine
-    container_name: maceio-redis
-    ports:
-      - "6379:6379"
+  # PostgreSQL - Evolution API Database
+  evolution-postgres:
+    image: postgres:15-alpine
+    container_name: maceio-evolution-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: evolution
+      POSTGRES_USER: evolution
+      POSTGRES_PASSWORD: evolution-segura-123
+    volumes:
+      - evolution_postgres_data:/var/lib/postgresql/data
     networks:
       - maceio-network
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evolution -d evolution"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
-  # Evolution API - WhatsApp
+  # Redis for Evolution API
+  evolution-redis:
+    image: redis:7-alpine
+    container_name: maceio-evolution-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - evolution_redis:/data
+    networks:
+      - maceio-network
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  # Evolution API
   evolution:
-    image: atendai/evolution-api:latest
+    image: evoapicloud/evolution-api:homolog
     container_name: maceio-evolution
-    environment:
-      - SERVER_URL=http://localhost:8080
-      - AUTHENTICATION_API_KEY=maceio-autoposto-key-2024
-      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
-      - DATABASE_ENABLED=true
-      - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://maceio:maceio2024@postgres:5432/evolution_db
-      - DATABASE_CONNECTION_CLIENT_NAME=evolution
-      - DATABASE_SAVE_DATA_INSTANCE=true
-      - DATABASE_SAVE_DATA_NEW_MESSAGE=true
-      - DATABASE_SAVE_MESSAGE_UPDATE=true
-      - DATABASE_SAVE_DATA_CONTACTS=true
-      - DATABASE_SAVE_DATA_CHATS=true
-      - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_URI=redis://redis:6379
-      - CACHE_REDIS_PREFIX_KEY=evolution
-      - CACHE_LOCAL_ENABLED=false
-      - WEBHOOK_GLOBAL_ENABLED=false
-      - WEBHOOK_GLOBAL_URL=
-      - CONFIG_SESSION_PHONE_CLIENT=Maceio AutoPosto
-      - CONFIG_SESSION_PHONE_NAME=Chrome
-      - QRCODE_LIMIT=30
-      - LOG_LEVEL=ERROR,WARN,DEBUG,INFO,LOG,VERBOSE
+    restart: unless-stopped
+    depends_on:
+      evolution-postgres:
+        condition: service_healthy
+      evolution-redis:
+        condition: service_healthy
     ports:
       - "8080:8080"
     volumes:
       - evolution_instances:/evolution/instances
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
     networks:
       - maceio-network
+    environment:
+      - SERVER_URL=http://76.13.225.52:8080
+      - AUTHENTICATION_API_KEY=maceio-autoposto-key-2024
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://evolution:evolution-segura-123@evolution-postgres:5432/evolution
+      - REDIS_ENABLED=true
+      - REDIS_URI=redis://evolution-redis:6379
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://evolution-redis:6379
+      - LOG_LEVEL=ERROR
+      - LOG_COLOR=true
 
-  # Bot Service - Webhook Receiver
+  # Bot Service (Revertido para Evolution)
   bot:
     build:
       context: ./bot
       dockerfile: Dockerfile
     container_name: maceio-bot
+    restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=maceio_autoposto;Username=maceio;Password=maceio2024
       - EvolutionApi__BaseUrl=http://evolution:8080
       - EvolutionApi__ApiKey=maceio-autoposto-key-2024
-      - EvolutionApi__InstanceName=maceio-whatsapp
+      - EvolutionApi__InstanceName=MaceioAutoPosto
     ports:
       - "5000:5000"
     depends_on:
-      - postgres
-      - evolution
+      postgres:
+        condition: service_healthy
+      evolution:
+        condition: service_started
     networks:
       - maceio-network
 
-  # Web Service - Landing Page + Admin
+  # Web Service
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
     container_name: maceio-web
+    restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5001
@@ -103,12 +129,15 @@ services:
     ports:
       - "5001:5001"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - maceio-network
 
 volumes:
   postgres_data:
+  evolution_postgres_data:
+  evolution_redis:
   evolution_instances:
 
 networks:

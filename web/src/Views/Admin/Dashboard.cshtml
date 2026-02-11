@@ -407,17 +407,17 @@
                         </div>
                     </div>
                     @{
-                        var ratingOrder = new[] { "5 - Excelente", "4 - Bom", "3 - Regular", "2 - Ruim", "1 - Muito Ruim" };
+                        var ratingOrder = new[] { "Excelente", "Bom", "Regular", "Ruim", "Muito ruim" };
                     }
                     @foreach (var rating in ratingOrder)
                     {
                         var count = Model.RatingDistribution.GetValueOrDefault(rating, 0);
                         var ratingTotal = Model.RatingDistribution.Values.Sum();
                         var ratingPercent = ratingTotal > 0 ? Math.Round((double)count / ratingTotal * 100) : 0;
-                        var ratingColor = rating.StartsWith("5") ? "#28a745" : 
-                                         rating.StartsWith("4") ? "#7cb342" :
-                                         rating.StartsWith("3") ? "#FFD100" :
-                                         rating.StartsWith("2") ? "#ff9800" : "#E31C23";
+                        var ratingColor = rating == "Excelente" ? "#28a745" : 
+                                         rating == "Bom" ? "#7cb342" :
+                                         rating == "Regular" ? "#FFD100" :
+                                         rating == "Ruim" ? "#ff9800" : "#E31C23";
                         <div class="progress-item">
                             <div class="progress-label">
                                 <span>@rating</span>
@@ -568,11 +568,11 @@
                 labels: ['5⭐', '4⭐', '3⭐', '2⭐', '1⭐'],
                 datasets: [{
                     data: [
-                        @Model.RatingDistribution.GetValueOrDefault("5 - Excelente", 0),
-                        @Model.RatingDistribution.GetValueOrDefault("4 - Bom", 0),
-                        @Model.RatingDistribution.GetValueOrDefault("3 - Regular", 0),
-                        @Model.RatingDistribution.GetValueOrDefault("2 - Ruim", 0),
-                        @Model.RatingDistribution.GetValueOrDefault("1 - Muito Ruim", 0)
+                        @Model.RatingDistribution.GetValueOrDefault("Excelente", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("Bom", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("Regular", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("Ruim", 0),
+                        @Model.RatingDistribution.GetValueOrDefault("Muito ruim", 0)
                     ],
                     backgroundColor: [verde, '#7cb342', amarelo, laranja, vermelho],
                     borderRadius: 6
