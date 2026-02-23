@@ -38,7 +38,7 @@ public class SurveyController : Controller
 
         var respondent = new Respondent
         {
-            PhoneNumber = string.Empty, // Será preenchido quando o cliente enviar pelo WhatsApp
+            PhoneNumber = string.Empty, // Sera preenchido quando o cliente enviar pelo WhatsApp
             FirstContactAt = DateTime.UtcNow,
             CompletedAt = DateTime.UtcNow,
             CurrentStep = "completed",
@@ -55,7 +55,7 @@ public class SurveyController : Controller
         _db.Respondents.Add(respondent);
         await _db.SaveChangesAsync();
 
-        var whatsappLink = GenerateWhatsappLink(respondent);
+        var whatsappLink = await GenerateWhatsappLinkAsync(respondent);
 
         return Ok(new SurveyResponse
         {
@@ -74,9 +74,12 @@ public class SurveyController : Controller
         return number;
     }
 
-    private string GenerateWhatsappLink(Respondent respondent)
+    private async Task<string> GenerateWhatsappLinkAsync(Respondent respondent)
     {
-        var whatsappNumber = _config["WhatsApp:Number"] ?? "5582999999999";
+        // Buscar numero do banco ou usar padrao
+        var settings = await _db.AppSettings.FirstOrDefaultAsync();
+        var whatsappNumber = settings?.WhatsAppNumber ?? _config["WhatsApp:Number"] ?? "5582999999999";
+        
         var message = $@"📋 PESQUISA MACEIÓ AUTO POSTO
 ━━━━━━━━━━━━━━━━━━━━━
 🔢 Código: {respondent.LuckyNumber}

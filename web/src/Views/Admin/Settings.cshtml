@@ -1,0 +1,259 @@
+@model MaceioWeb.Models.SettingsViewModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuracoes - Maceio Auto Posto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { 
+            --vermelho: #E31C23; 
+            --vermelho-escuro: #B91620;
+            --amarelo: #FFD100; 
+            --sidebar: 260px; 
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; margin: 0; }
+        
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: var(--sidebar); 
+            height: 100vh; 
+            background: linear-gradient(180deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%); 
+            padding: 1.5rem;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .sidebar-brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            color: white; 
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-logo { 
+            background: var(--amarelo); 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .sidebar-logo span { font-size: 1.8rem; font-weight: 900; color: var(--vermelho); }
+        .sidebar-title { font-weight: 700; font-size: 1.1rem; line-height: 1.3; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 0.5rem; }
+        .sidebar-nav a { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            padding: 0.85rem 1rem; 
+            border-radius: 10px; 
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; }
+        .sidebar-nav a i { font-size: 1.1rem; width: 24px; }
+        
+        .main-content { margin-left: var(--sidebar); padding: 2rem 2.5rem; min-height: 100vh; }
+        
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 1.75rem; font-weight: 700; color: #1a1a1a; margin: 0; }
+        .page-header p { color: #666; margin: 0.25rem 0 0 0; }
+        
+        .settings-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 2rem; 
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--vermelho);
+            box-shadow: 0 0 0 3px rgba(227, 28, 35, 0.1);
+        }
+        
+        .btn-save {
+            background: var(--vermelho);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-save:hover {
+            background: var(--vermelho-escuro);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .alert-success {
+            background: #d3f9d8;
+            color: #2b8a3e;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .alert-danger {
+            background: #ffe3e3;
+            color: #c92a2a;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .help-text {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .input-group-text {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        @@media (max-width: 992px) {
+            .sidebar { width: 70px; padding: 1rem 0.5rem; }
+            .sidebar-brand { justify-content: center; }
+            .sidebar-title, .sidebar-nav span { display: none; }
+            .sidebar-nav a { justify-content: center; padding: 0.85rem; }
+            .sidebar-nav a i { margin: 0; }
+            .main-content { margin-left: 70px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo"><span>M</span></div>
+            <div class="sidebar-title">MACEIO<br>AUTO POSTO</div>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="@Url.Action("Dashboard")"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a></li>
+            <li><a href="@Url.Action("Contacts")"><i class="bi bi-people"></i> <span>Contatos</span></a></li>
+            <li><a href="@Url.Action("QrCode")"><i class="bi bi-qr-code"></i> <span>QR Code</span></a></li>
+            <li><a href="@Url.Action("Settings")" class="active"><i class="bi bi-gear"></i> <span>Configuracoes</span></a></li>
+            <li><a href="@Url.Action("ExportCsv")"><i class="bi bi-download"></i> <span>Exportar CSV</span></a></li>
+            <li><a href="/" target="_blank"><i class="bi bi-globe"></i> <span>Ver Site</span></a></li>
+            <li><a href="@Url.Action("Logout")"><i class="bi bi-box-arrow-left"></i> <span>Sair</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1><i class="bi bi-gear" style="color: var(--vermelho)"></i> Configuracoes</h1>
+            <p>Configure o numero do WhatsApp para receber as pesquisas</p>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="settings-card">
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i> @Model.SuccessMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> @Model.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form method="post" asp-action="Settings">
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="bi bi-whatsapp" style="color: #25D366"></i> Numero do WhatsApp
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">+</span>
+                                <input type="text" class="form-control" name="WhatsAppNumber" 
+                                       value="@Model.WhatsAppNumber" 
+                                       placeholder="5582999999999" 
+                                       required>
+                            </div>
+                            <div class="help-text">
+                                <i class="bi bi-info-circle"></i> 
+                                Informe o numero completo com codigo do pais e DDD (apenas numeros).
+                                <br>Exemplo: <strong>5582999999999</strong> (55 = Brasil, 82 = Maceio, 999999999 = numero)
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-save">
+                            <i class="bi bi-check-lg me-2"></i> Salvar Configuracoes
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="settings-card">
+                    <h5 style="color: #1a1a1a; margin-bottom: 1rem;">
+                        <i class="bi bi-question-circle" style="color: var(--amarelo)"></i> Como funciona?
+                    </h5>
+                    
+                    <div style="color: #555; line-height: 1.8;">
+                        <p><strong>1.</strong> Configure aqui o numero do WhatsApp Business do posto.</p>
+                        <p><strong>2.</strong> Quando o cliente terminar a pesquisa, clicara no botao "Enviar via WhatsApp".</p>
+                        <p><strong>3.</strong> O WhatsApp do cliente abrira com uma mensagem formatada contendo:</p>
+                        <ul>
+                            <li>Codigo do sorteio</li>
+                            <li>Respostas da pesquisa</li>
+                            <li>Data e hora</li>
+                        </ul>
+                        <p><strong>4.</strong> O cliente envia a mensagem para o numero configurado.</p>
+                        <p><strong>5.</strong> A Evolution API recebe e processa a mensagem automaticamente.</p>
+                    </div>
+                    
+                    <div class="alert alert-warning mt-3" style="background: #fff3cd; color: #856404; border: none; border-radius: 10px;">
+                        <i class="bi bi-lightbulb-fill me-2"></i>
+                        <strong>Dica:</strong> Use o WhatsApp Business do posto para receber as mensagens.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -67,3 +67,18 @@ public class LoginViewModel
     public string Password { get; set; } = string.Empty;
     public string? ErrorMessage { get; set; }
 }
+
+public class AppSettings
+{
+    public int Id { get; set; }
+    public string WhatsAppNumber { get; set; } = "5582999999999";
+    public string SurveyBaseUrl { get; set; } = "http://localhost:5001/pesquisa";
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+}
+
+public class SettingsViewModel
+{
+    public string WhatsAppNumber { get; set; } = string.Empty;
+    public string? SuccessMessage { get; set; }
+    public string? ErrorMessage { get; set; }
+}

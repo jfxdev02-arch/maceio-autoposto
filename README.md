@@ -11,67 +11,79 @@ Sistema de Pesquisa de Satisfacao com QR Code
 5. Evolution API recebe a mensagem e atualiza o banco de dados
 6. Dashboard exibe os resultados
 
-## Quick Start
+## Deploy em Producao
 
+### 1. Clone o repositorio
 ```bash
-docker-compose up -d
+git clone https://github.com/jfxdev02-arch/maceio-autoposto.git
+cd maceio-autoposto
 ```
 
-## URLs
+### 2. Configure as variaveis de ambiente
+```bash
+cp .env.example .env
+```
 
-| Servico | URL |
-|---------|-----|
-| Landing Page | http://localhost:5001 |
-| Pesquisa | http://localhost:5001/pesquisa |
-| Admin | http://localhost:5001/Admin/Login |
-| QR Code | http://localhost:5001/Admin/QrCode |
-| Evolution API | http://localhost:8080 |
+Edite o arquivo `.env` com suas configuracoes:
+```
+SERVER_URL=http://seu-ip-ou-dominio:8080
+EVOLUTION_API_KEY=maceio-autoposto-key-2024
+SURVEY_URL=http://seu-ip-ou-dominio:5001/pesquisa
+```
 
-**Admin:** admin / maceio2024
+### 3. Inicie os containers
+```bash
+docker-compose up -d --build
+```
 
-## Configurar WhatsApp
+### 4. Configure o WhatsApp
+
+Acesse a Evolution API para conectar o WhatsApp Business:
 
 ```bash
-# 1. Criar instancia
+# Criar instancia
 curl -X POST http://localhost:8080/instance/create \
   -H "apikey: maceio-autoposto-key-2024" \
   -H "Content-Type: application/json" \
   -d '{"instanceName":"maceio-whatsapp","integration":"WHATSAPP-BAILEYS","qrcode":true}'
 
-# 2. Obter QR Code
+# Obter QR Code para conectar
 curl http://localhost:8080/instance/connect/maceio-whatsapp \
   -H "apikey: maceio-autoposto-key-2024"
 
-# 3. Configurar Webhook
+# Configurar Webhook
 curl -X POST http://localhost:8080/webhook/set/maceio-whatsapp \
   -H "apikey: maceio-autoposto-key-2024" \
   -H "Content-Type: application/json" \
   -d '{"webhook":{"enabled":true,"url":"http://bot:5000/webhook/evolution","events":["MESSAGES_UPSERT"]}}'
 ```
 
-## Configuracao
+### 5. Configure o numero do WhatsApp no Admin
 
-### Numero do WhatsApp do Posto
+1. Acesse `http://seu-ip:5001/Admin/Login`
+2. Login: **admin** / Senha: **maceio2024**
+3. Va em **Configuracoes**
+4. Digite o numero do WhatsApp Business (ex: 5582999999999)
+5. Clique em **Salvar**
 
-Edite a variavel de ambiente `WhatsApp__Number` no `docker-compose.yml`:
+### 6. Gere o QR Code da Pesquisa
 
-```yaml
-environment:
-  - WhatsApp__Number=5582999999999
-```
+1. No Admin, va em **QR Code**
+2. Baixe o PNG ou PDF
+3. Imprima e cole no posto
 
-### URL da Pesquisa
+## URLs
 
-Edite a variavel de ambiente `Survey__BaseUrl` no `docker-compose.yml`:
-
-```yaml
-environment:
-  - Survey__BaseUrl=https://seu-dominio.com/pesquisa
-```
+| Servico | URL |
+|---------|-----|
+| Landing Page | http://seu-ip:5001 |
+| Pesquisa | http://seu-ip:5001/pesquisa |
+| Admin | http://seu-ip:5001/Admin/Login |
+| Evolution API | http://seu-ip:8080 |
 
 ## Stack
 
-- ASP.NET Core 8
+- ASP.NET Core 9
 - PostgreSQL 15
 - Evolution API v2
 - Docker Compose

@@ -79,8 +79,8 @@ services:
     networks:
       - maceio-network
     environment:
-      - SERVER_URL=http://76.13.225.52:8080
-      - AUTHENTICATION_API_KEY=maceio-autoposto-key-2024
+      - SERVER_URL=${SERVER_URL:-http://localhost:8080}
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY:-maceio-autoposto-key-2024}
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
       - DATABASE_CONNECTION_URI=postgresql://evolution:evolution-segura-123@evolution-postgres:5432/evolution
@@ -91,7 +91,7 @@ services:
       - LOG_LEVEL=ERROR
       - LOG_COLOR=true
 
-  # Bot Service (Revertido para Evolution)
+  # Bot Service
   bot:
     build:
       context: ./bot
@@ -102,11 +102,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=maceio_autoposto;Username=maceio;Password=maceio2024
-      - EvolutionApi__BaseUrl=http://evolution:8080
-      - EvolutionApi__ApiKey=maceio-autoposto-key-2024
-      - EvolutionApi__InstanceName=MaceioAutoPosto
-    ports:
-      - "5000:5000"
+    expose:
+      - "5000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -126,8 +123,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5001
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=maceio_autoposto;Username=maceio;Password=maceio2024
-      - WhatsApp__Number=5582999999999
-      - Survey__BaseUrl=http://localhost:5001/pesquisa
+      - Survey__BaseUrl=${SURVEY_URL:-http://localhost:5001/pesquisa}
     ports:
       - "5001:5001"
     depends_on:

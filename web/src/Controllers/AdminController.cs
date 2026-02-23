@@ -14,11 +14,30 @@ public class AdminController : Controller
 {
     private readonly AppDbContext _db;
     private readonly IConfiguration _config;
+    private readonly ILogger<AdminController> _logger;
 
-    public AdminController(AppDbContext db, IConfiguration config)
+    public AdminController(AppDbContext db, IConfiguration config, ILogger<AdminController> logger)
     {
         _db = db;
         _config = config;
+        _logger = logger;
+    }
+
+    // Metodo auxiliar para obter configuracoes
+    private async Task<AppSettings> GetOrCreateSettingsAsync()
+    {
+        var settings = await _db.AppSettings.FirstOrDefaultAsync();
+        if (settings == null)
+        {
+            settings = new AppSettings
+            {
+                WhatsAppNumber = _config["WhatsApp:Number"] ?? "5582999999999",
+                SurveyBaseUrl = _config["Survey:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}/pesquisa"
+            };
+            _db.AppSettings.Add(settings);
+            await _db.SaveChangesAsync();
+        }
+        return settings;
     }
 
     [HttpGet]
@@ -179,9 +198,51 @@ public class AdminController : Controller
     }
 
     [Authorize]
-    public IActionResult QrCode()
+    [HttpGet]
+    public async Task<IActionResult> Settings()
     {
-        var surveyUrl = _config["Survey:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}/pesquisa";
+        var settings = await GetOrCreateSettingsAsync();
+        
+        var model = new SettingsViewModel
+        {
+            WhatsAppNumber = settings.WhatsAppNumber
+        };
+        
+        return View(model);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Settings(SettingsViewModel model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+
+        // Validar formato do numero
+        var cleanNumber = new string(model.WhatsAppNumber.Where(char.IsDigit).ToArray());
+        if (cleanNumber.Length < 10 || cleanNumber.Length > 15)
+        {
+            model.ErrorMessage = "Numero invalido. Use formato: 5582999999999 (codigo pais + DDD + numero)";
+            return View(model);
+        }
+
+        var settings = await GetOrCreateSettingsAsync();
+        settings.WhatsAppNumber = cleanNumber;
+        settings.UpdatedAt = DateTime.UtcNow;
+        
+        await _db.SaveChangesAsync();
+
+        model.SuccessMessage = "Configuracoes salvas com sucesso!";
+        model.WhatsAppNumber = cleanNumber;
+        
+        return View(model);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> QrCode()
+    {
+        var settings = await GetOrCreateSettingsAsync();
+        var surveyUrl = settings.SurveyBaseUrl;
         
         using var qrGenerator = new QRCodeGenerator();
         using var qrCodeData = qrGenerator.CreateQrCode(surveyUrl, QRCodeGenerator.ECCLevel.Q);
@@ -192,14 +253,16 @@ public class AdminController : Controller
         
         ViewBag.SurveyUrl = surveyUrl;
         ViewBag.QrCodeBase64 = base64QrCode;
+        ViewBag.WhatsAppNumber = settings.WhatsAppNumber;
         
         return View();
     }
 
     [Authorize]
-    public IActionResult DownloadQrCode()
+    public async Task<IActionResult> DownloadQrCode()
     {
-        var surveyUrl = _config["Survey:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}/pesquisa";
+        var settings = await GetOrCreateSettingsAsync();
+        var surveyUrl = settings.SurveyBaseUrl;
         
         using var qrGenerator = new QRCodeGenerator();
         using var qrCodeData = qrGenerator.CreateQrCode(surveyUrl, QRCodeGenerator.ECCLevel.Q);

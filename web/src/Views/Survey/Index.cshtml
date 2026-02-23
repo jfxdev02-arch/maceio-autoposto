@@ -120,30 +120,24 @@
 
         .slides-container {
             position: relative;
-            min-height: 400px;
-            overflow: hidden;
+            min-height: 450px;
+            overflow: visible;
+            padding-bottom: 30px;
         }
 
         .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
+            position: relative;
             width: 100%;
             padding: 25px;
+            padding-bottom: 30px;
             opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.4s ease;
-            pointer-events: none;
+            display: none;
+            transition: opacity 0.4s ease;
         }
 
         .slide.active {
             opacity: 1;
-            transform: translateX(0);
-            pointer-events: auto;
-        }
-
-        .slide.prev {
-            transform: translateX(-100%);
+            display: block;
         }
 
         .slide h2 {
@@ -304,7 +298,7 @@
             animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
+        @@keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
@@ -350,16 +344,25 @@
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
+            margin-top: 20px;
         }
-
+        
         .whatsapp-btn:hover {
             background: #128C7E;
             transform: translateY(-2px);
             color: white;
         }
-
+        
         .whatsapp-btn i {
             font-size: 1.4rem;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%);
+        }
+        
+        .start-btn:hover {
+            background: linear-gradient(135deg, var(--vermelho-escuro) 0%, #8a1118 100%);
         }
 
         .survey-footer {
@@ -395,7 +398,7 @@
             color: var(--vermelho);
         }
 
-        @media (max-width: 480px) {
+        @@media (max-width: 480px) {
             body {
                 padding: 10px;
             }
@@ -467,7 +470,7 @@
                     <h3>Concorra a um Tanque Cheio!</h3>
                     <p>Participe e concorra a combustivel gratis</p>
                 </div>
-                <button class="whatsapp-btn mt-4" onclick="nextSlide()">
+                <button class="whatsapp-btn start-btn" onclick="nextSlide()">
                     <i class="bi bi-arrow-right-circle-fill"></i>
                     Comecar Pesquisa
                 </button>
@@ -478,15 +481,15 @@
                 <h2><i class="bi bi-calendar-week" style="color: var(--vermelho)"></i> Pergunta 1 de 4</h2>
                 <p class="text-center text-muted mb-4">Quantas vezes por semana voce abastece?</p>
                 <div class="options-grid" data-question="frequency">
-                    <button class="option-btn" data-value="1 vez" onclick="selectOption(this, 'frequency')">
+                    <button class="option-btn" data-value="1 vez" onclick="selectOption(this, 'frequencyAnswer')">
                         <div class="option-icon"><i class="bi bi-1-circle-fill"></i></div>
                         <span class="option-text">1 vez por semana</span>
                     </button>
-                    <button class="option-btn" data-value="2 vezes" onclick="selectOption(this, 'frequency')">
+                    <button class="option-btn" data-value="2 vezes" onclick="selectOption(this, 'frequencyAnswer')">
                         <div class="option-icon"><i class="bi bi-2-circle-fill"></i></div>
                         <span class="option-text">2 vezes por semana</span>
                     </button>
-                    <button class="option-btn" data-value="3 vezes ou mais" onclick="selectOption(this, 'frequency')">
+                    <button class="option-btn" data-value="3 vezes ou mais" onclick="selectOption(this, 'frequencyAnswer')">
                         <div class="option-icon"><i class="bi bi-3-circle-fill"></i></div>
                         <span class="option-text">3 vezes ou mais</span>
                     </button>
@@ -498,11 +501,11 @@
                 <h2><i class="bi bi-shop" style="color: var(--vermelho)"></i> Pergunta 2 de 4</h2>
                 <p class="text-center text-muted mb-4">Voce utiliza nossa loja de conveniencia?</p>
                 <div class="options-grid" data-question="convenience">
-                    <button class="option-btn" data-value="Sim" onclick="selectOption(this, 'convenience')">
+                    <button class="option-btn" data-value="Sim" onclick="selectOption(this, 'convenienceAnswer')">
                         <div class="option-icon" style="background: var(--verde)"><i class="bi bi-check-lg"></i></div>
                         <span class="option-text">Sim, utilizo</span>
                     </button>
-                    <button class="option-btn" data-value="Nao" onclick="selectOption(this, 'convenience')">
+                    <button class="option-btn" data-value="Nao" onclick="selectOption(this, 'convenienceAnswer')">
                         <div class="option-icon" style="background: #6c757d"><i class="bi bi-x-lg"></i></div>
                         <span class="option-text">Nao utilizo</span>
                     </button>
@@ -514,19 +517,19 @@
                 <h2><i class="bi bi-fuel-pump" style="color: var(--vermelho)"></i> Pergunta 3 de 4</h2>
                 <p class="text-center text-muted mb-4">Qual combustivel voce utiliza com maior frequencia?</p>
                 <div class="options-grid" data-question="fuel">
-                    <button class="option-btn" data-value="Gasolina comum" onclick="selectOption(this, 'fuel')">
+                    <button class="option-btn" data-value="Gasolina comum" onclick="selectOption(this, 'fuelAnswer')">
                         <div class="option-icon" style="background: var(--vermelho)"><i class="bi bi-droplet-fill"></i></div>
                         <span class="option-text">Gasolina comum</span>
                     </button>
-                    <button class="option-btn" data-value="Gasolina aditivada" onclick="selectOption(this, 'fuel')">
+                    <button class="option-btn" data-value="Gasolina aditivada" onclick="selectOption(this, 'fuelAnswer')">
                         <div class="option-icon" style="background: var(--amarelo)"><i class="bi bi-droplet-fill"></i></div>
                         <span class="option-text">Gasolina aditivada</span>
                     </button>
-                    <button class="option-btn" data-value="Etanol" onclick="selectOption(this, 'fuel')">
+                    <button class="option-btn" data-value="Etanol" onclick="selectOption(this, 'fuelAnswer')">
                         <div class="option-icon" style="background: var(--verde)"><i class="bi bi-droplet-fill"></i></div>
                         <span class="option-text">Etanol</span>
                     </button>
-                    <button class="option-btn" data-value="Diesel" onclick="selectOption(this, 'fuel')">
+                    <button class="option-btn" data-value="Diesel" onclick="selectOption(this, 'fuelAnswer')">
                         <div class="option-icon" style="background: #007bff"><i class="bi bi-droplet-fill"></i></div>
                         <span class="option-text">Diesel</span>
                     </button>
@@ -606,10 +609,10 @@
         let currentSlide = 0;
         const totalSlides = 6;
         const answers = {
-            frequency: null,
-            convenience: null,
-            fuel: null,
-            rating: null
+            frequencyAnswer: null,
+            convenienceAnswer: null,
+            fuelAnswer: null,
+            ratingAnswer: null
         };
 
         function updateProgress() {
@@ -630,10 +633,8 @@
         function showSlide(index) {
             const slides = document.querySelectorAll('.slide');
             slides.forEach((slide, i) => {
-                slide.classList.remove('active', 'prev');
-                if (i < index) {
-                    slide.classList.add('prev');
-                } else if (i === index) {
+                slide.classList.remove('active');
+                if (i === index) {
                     slide.classList.add('active');
                 }
             });
@@ -666,7 +667,7 @@
                 btn.classList.remove('selected');
             });
             button.classList.add('selected');
-            answers.rating = button.dataset.value;
+            answers.ratingAnswer = button.dataset.value;
 
             setTimeout(() => {
                 submitSurvey();
@@ -677,7 +678,6 @@
             const slidesContainer = document.getElementById('slidesContainer');
             const loadingSpinner = document.getElementById('loadingSpinner');
             const progressContainer = document.getElementById('progressContainer');
-            const surveyFooter = document.getElementById('surveyFooter');
 
             slidesContainer.querySelector('.slide.active').classList.remove('active');
             loadingSpinner.style.display = 'block';
@@ -693,10 +693,13 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao enviar pesquisa');
+                    const errorText = await response.text();
+                    console.error('Erro HTTP:', response.status, errorText);
+                    throw new Error('Erro ao enviar pesquisa: ' + response.status);
                 }
 
                 const data = await response.json();
+                console.log('Resposta recebida:', data);
 
                 document.getElementById('luckyNumber').textContent = data.luckyNumber;
                 document.getElementById('whatsappBtn').href = data.whatsappLink;
@@ -708,10 +711,15 @@
                 progressContainer.querySelector('.progress-fill').style.width = '100%';
 
             } catch (error) {
+                console.error('Erro completo:', error);
                 loadingSpinner.innerHTML = `
-                    <div class="error-message">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <p>Erro ao processar sua participacao. Tente novamente.</p>
+                    <div style="background: #ffe3e3; color: #c92a2a; padding: 20px; border-radius: 10px; text-align: center;">
+                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 10px;">Erro ao processar sua participacao.</p>
+                        <p style="font-size: 0.85rem;">${error.message}</p>
+                        <button onclick="location.reload()" style="margin-top: 15px; padding: 10px 20px; background: #c92a2a; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Tentar Novamente
+                        </button>
                     </div>
                 `;
             }
