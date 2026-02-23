@@ -126,6 +126,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5001
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=maceio_autoposto;Username=maceio;Password=maceio2024
+      - WhatsApp__Number=5582999999999
+      - Survey__BaseUrl=http://localhost:5001/pesquisa
     ports:
       - "5001:5001"
     depends_on:

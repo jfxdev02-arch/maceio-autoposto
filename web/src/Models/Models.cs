@@ -18,6 +18,24 @@ public class Respondent
     
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    
+    // Novos campos para o fluxo web
+    public string Source { get; set; } = "web"; // "web" ou "whatsapp"
+    public DateTime? WhatsappSentAt { get; set; } // Quando o cliente enviou pelo WhatsApp
+}
+
+public class SurveyRequest
+{
+    public string FrequencyAnswer { get; set; } = string.Empty;
+    public string ConvenienceAnswer { get; set; } = string.Empty;
+    public string FuelAnswer { get; set; } = string.Empty;
+    public string RatingAnswer { get; set; } = string.Empty;
+}
+
+public class SurveyResponse
+{
+    public string LuckyNumber { get; set; } = string.Empty;
+    public string WhatsappLink { get; set; } = string.Empty;
 }
 
 public class DashboardStats

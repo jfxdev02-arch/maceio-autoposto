@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using MaceioWeb.Data;
 using MaceioWeb.Models;
 using System.Security.Claims;
+using QRCoder;
 
 namespace MaceioWeb.Controllers;
 
@@ -51,7 +52,7 @@ public class AdminController : Controller
             return RedirectToAction("Dashboard");
         }
 
-        model.ErrorMessage = "Usuário ou senha inválidos";
+        model.ErrorMessage = "Usuario ou senha invalidos";
         return View(model);
     }
 
@@ -75,7 +76,7 @@ public class AdminController : Controller
             ? Math.Round((double)stats.CompletedSurveys / stats.TotalContacts * 100, 1) 
             : 0;
 
-        // Média de avaliação
+        // Media de avaliacao
         var ratings = respondents
             .Where(r => !string.IsNullOrEmpty(r.RatingAnswer))
             .Select(r => r.RatingAnswer switch
@@ -92,7 +93,7 @@ public class AdminController : Controller
         
         stats.AverageRating = ratings.Any() ? Math.Round(ratings.Average(), 1) : 0;
 
-        // Distribuições
+        // Distribuicoes
         stats.FrequencyDistribution = respondents
             .Where(r => !string.IsNullOrEmpty(r.FrequencyAnswer))
             .GroupBy(r => r.FrequencyAnswer!)
@@ -113,7 +114,7 @@ public class AdminController : Controller
             .GroupBy(r => r.RatingAnswer!)
             .ToDictionary(g => g.Key, g => g.Count());
 
-        // Últimos 30 dias
+        // Ultimos 30 dias
         var last30Days = Enumerable.Range(0, 30)
             .Select(i => DateTime.UtcNow.Date.AddDays(-i))
             .ToList();
@@ -167,7 +168,7 @@ public class AdminController : Controller
             .OrderByDescending(r => r.CompletedAt)
             .ToListAsync();
 
-        var csv = "Telefone,Nome,Frequência,Conveniência,Combustível,Avaliação,Número Sorteio,Data Conclusão\n";
+        var csv = "Telefone,Nome,Frequencia,Conveniencia,Combustivel,Avaliacao,Numero Sorteio,Data Conclusao\n";
         
         foreach (var r in respondents)
         {
@@ -175,5 +176,36 @@ public class AdminController : Controller
         }
 
         return File(System.Text.Encoding.UTF8.GetBytes(csv), "text/csv", $"pesquisa-maceio-autoposto-{DateTime.Now:yyyyMMdd}.csv");
+    }
+
+    [Authorize]
+    public IActionResult QrCode()
+    {
+        var surveyUrl = _config["Survey:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}/pesquisa";
+        
+        using var qrGenerator = new QRCodeGenerator();
+        using var qrCodeData = qrGenerator.CreateQrCode(surveyUrl, QRCodeGenerator.ECCLevel.Q);
+        using var qrCode = new PngByteQRCode(qrCodeData);
+        var qrCodeBytes = qrCode.GetGraphic(20, new byte[] { 227, 28, 35 }, new byte[] { 255, 255, 255 });
+        
+        var base64QrCode = Convert.ToBase64String(qrCodeBytes);
+        
+        ViewBag.SurveyUrl = surveyUrl;
+        ViewBag.QrCodeBase64 = base64QrCode;
+        
+        return View();
+    }
+
+    [Authorize]
+    public IActionResult DownloadQrCode()
+    {
+        var surveyUrl = _config["Survey:BaseUrl"] ?? $"{Request.Scheme}://{Request.Host}/pesquisa";
+        
+        using var qrGenerator = new QRCodeGenerator();
+        using var qrCodeData = qrGenerator.CreateQrCode(surveyUrl, QRCodeGenerator.ECCLevel.Q);
+        using var qrCode = new PngByteQRCode(qrCodeData);
+        var qrCodeBytes = qrCode.GetGraphic(20, new byte[] { 227, 28, 35 }, new byte[] { 255, 255, 255 });
+        
+        return File(qrCodeBytes, "image/png", $"qrcode-pesquisa-maceio-autoposto.png");
     }
 }

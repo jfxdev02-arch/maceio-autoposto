@@ -25,6 +25,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.FuelAnswer).HasMaxLength(30);
             entity.Property(e => e.RatingAnswer).HasMaxLength(20);
             entity.Property(e => e.LuckyNumber).HasMaxLength(6);
+            entity.Property(e => e.Source).HasMaxLength(20).IsRequired();
         });
     }
 }

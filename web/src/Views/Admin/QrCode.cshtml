@@ -1,0 +1,364 @@
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Pesquisa - Maceio Auto Posto</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root { 
+            --vermelho: #E31C23; 
+            --vermelho-escuro: #B91620;
+            --amarelo: #FFD100; 
+            --sidebar: 260px; 
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; margin: 0; }
+        
+        /* Sidebar */
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: var(--sidebar); 
+            height: 100vh; 
+            background: linear-gradient(180deg, var(--vermelho) 0%, var(--vermelho-escuro) 100%); 
+            padding: 1.5rem;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .sidebar-brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            color: white; 
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-logo { 
+            background: var(--amarelo); 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .sidebar-logo span { font-size: 1.8rem; font-weight: 900; color: var(--vermelho); }
+        .sidebar-title { font-weight: 700; font-size: 1.1rem; line-height: 1.3; }
+        .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+        .sidebar-nav li { margin-bottom: 0.5rem; }
+        .sidebar-nav a { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            color: rgba(255,255,255,0.7); 
+            text-decoration: none; 
+            padding: 0.85rem 1rem; 
+            border-radius: 10px; 
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; }
+        .sidebar-nav a i { font-size: 1.1rem; width: 24px; }
+        
+        /* Main Content */
+        .main-content { margin-left: var(--sidebar); padding: 2rem 2.5rem; min-height: 100vh; }
+        
+        /* Page Header */
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 1.75rem; font-weight: 700; color: #1a1a1a; margin: 0; }
+        .page-header p { color: #666; margin: 0.25rem 0 0 0; }
+        
+        /* QR Card */
+        .qr-card { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 2rem; 
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+        
+        .qr-image-container {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+        
+        .qr-image-container img {
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        .qr-url {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-download {
+            background: var(--vermelho);
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background: var(--vermelho-escuro);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-copy {
+            background: var(--amarelo);
+            color: #1a1a1a;
+        }
+        
+        .btn-copy:hover {
+            background: #e6bc00;
+            color: #1a1a1a;
+            transform: translateY(-2px);
+        }
+        
+        .btn-whatsapp-share {
+            background: #25D366;
+            color: white;
+        }
+        
+        .btn-whatsapp-share:hover {
+            background: #128C7E;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .instructions-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-top: 1.5rem;
+        }
+        
+        .instructions-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+        }
+        
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .instruction-number {
+            width: 28px;
+            height: 28px;
+            background: var(--vermelho);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .instruction-text {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1050;
+        }
+        
+        .toast-success {
+            background: var(--verde);
+            color: white;
+        }
+        
+        /* Responsive */
+        @@media (max-width: 992px) {
+            .sidebar { width: 70px; padding: 1rem 0.5rem; }
+            .sidebar-brand { justify-content: center; }
+            .sidebar-title, .sidebar-nav span { display: none; }
+            .sidebar-nav a { justify-content: center; padding: 0.85rem; }
+            .sidebar-nav a i { margin: 0; }
+            .main-content { margin-left: 70px; }
+        }
+        
+        @@media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo"><span>M</span></div>
+            <div class="sidebar-title">MACEIO<br>AUTO POSTO</div>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="@Url.Action("Dashboard")"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a></li>
+            <li><a href="@Url.Action("Contacts")"><i class="bi bi-people"></i> <span>Contatos</span></a></li>
+            <li><a href="@Url.Action("QrCode")" class="active"><i class="bi bi-qr-code"></i> <span>QR Code</span></a></li>
+            <li><a href="@Url.Action("ExportCsv")"><i class="bi bi-download"></i> <span>Exportar CSV</span></a></li>
+            <li><a href="/" target="_blank"><i class="bi bi-globe"></i> <span>Ver Site</span></a></li>
+            <li><a href="@Url.Action("Logout")"><i class="bi bi-box-arrow-left"></i> <span>Sair</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1>QR Code da Pesquisa</h1>
+            <p>Imprima e disponibilize para seus clientes escanearem</p>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="qr-card">
+                    <div class="qr-image-container">
+                        <img src="data:image/png;base64,@ViewBag.QrCodeBase64" alt="QR Code Pesquisa" />
+                    </div>
+                    
+                    <div class="qr-url">
+                        <i class="bi bi-link-45deg"></i> @ViewBag.SurveyUrl
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="@Url.Action("DownloadQrCode")" class="btn-action btn-download">
+                            <i class="bi bi-download"></i>
+                            Download PNG
+                        </a>
+                        <button class="btn-action btn-copy" onclick="copyUrl()">
+                            <i class="bi bi-clipboard"></i>
+                            Copiar Link
+                        </button>
+                        <a href="https://wa.me/?text=@Uri.EscapeDataString("Participe da pesquisa do Maceio Auto Posto e concorra a premios! " + ViewBag.SurveyUrl)" target="_blank" class="btn-action btn-whatsapp-share">
+                            <i class="bi bi-whatsapp"></i>
+                            Compartilhar
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="instructions-card">
+                    <h3><i class="bi bi-lightbulb" style="color: var(--amarelo)"></i> Como utilizar</h3>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number">1</div>
+                        <div class="instruction-text">Baixe o QR Code em formato PNG clicando no botao "Download PNG"</div>
+                    </div>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number">2</div>
+                        <div class="instruction-text">Imprima o QR Code em tamanho adequado (recomendamos 10x10 cm)</div>
+                    </div>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number">3</div>
+                        <div class="instruction-text">Cole em locais visiveis: bombas de combustivel, caixa, entrada do estabelecimento</div>
+                    </div>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number">4</div>
+                        <div class="instruction-text">O cliente escaneia, responde a pesquisa e envia os dados via WhatsApp</div>
+                    </div>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number">5</div>
+                        <div class="instruction-text">Os dados chegam automaticamente ao dashboard</div>
+                    </div>
+                </div>
+                
+                <div class="instructions-card" style="margin-top: 1rem;">
+                    <h3><i class="bi bi-printer" style="color: var(--vermelho)"></i> Dicas de impressao</h3>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number" style="background: var(--amarelo); color: #1a1a1a;">!</div>
+                        <div class="instruction-text">Use papel branco e de boa qualidade para melhor leitura</div>
+                    </div>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number" style="background: var(--amarelo); color: #1a1a1a;">!</div>
+                        <div class="instruction-text">Evite plastificar - o brilho pode dificultar a leitura</div>
+                    </div>
+                    
+                    <div class="instruction-item">
+                        <div class="instruction-number" style="background: var(--amarelo); color: #1a1a1a;">!</div>
+                        <div class="instruction-text">Mantenha o QR Code sempre limpo e sem dobras</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container">
+        <div id="copyToast" class="toast toast-success align-items-center" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-check-circle-fill me-2"></i> Link copiado!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyUrl() {
+            navigator.clipboard.writeText('@ViewBag.SurveyUrl').then(function() {
+                var toast = new bootstrap.Toast(document.getElementById('copyToast'));
+                toast.show();
+            });
+        }
+    </script>
+</body>
+</html>

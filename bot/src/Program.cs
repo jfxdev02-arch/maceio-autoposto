@@ -1,6 +1,5 @@
 using System.Text.Json;
 using MaceioBot.Data;
-using MaceioBot.Flow;
 using MaceioBot.Services;
 using MaceioBot.Webhooks;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +11,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Services
-builder.Services.AddHttpClient<EvolutionApiService>();
-// AntibanService como Singleton e HostedService para processar a fila global
-builder.Services.AddSingleton<AntibanService>();
-builder.Services.AddHostedService(sp => sp.GetRequiredService<AntibanService>());
-
-builder.Services.AddScoped<QuestionnaireFlow>();
+builder.Services.AddScoped<SurveyReceiverService>();
 
 var app = builder.Build();
 
@@ -49,16 +43,27 @@ app.MapPost("/webhook/evolution", async (HttpContext context, IServiceProvider s
         var (phone, pushName, text) = WebhookParser.Parse(root);
         if (string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(text)) return Results.Ok();
 
+        // Ignora mensagens enviadas pelo proprio bot (de GroupUpdate ou outras notificacoes)
+        if (root.TryGetProperty("data", out var data))
+        {
+            if (data.TryGetProperty("key", out var key))
+            {
+                if (key.TryGetProperty("fromMe", out var fromMe) && fromMe.GetBoolean())
+                {
+                    logger.LogInformation("Ignorando mensagem enviada pelo proprio bot");
+                    return Results.Ok();
+                }
+            }
+        }
+
         logger.LogInformation("Mensagem recebida de {Phone}: {Text}", phone, text);
 
         using var scope = sp.CreateScope();
-        var flow = scope.ServiceProvider.GetRequiredService<QuestionnaireFlow>();
-        await flow.ProcessMessageAsync(phone, pushName ?? "Cliente", text);
+        var surveyReceiver = scope.ServiceProvider.GetRequiredService<SurveyReceiverService>();
+        await surveyReceiver.ProcessIncomingMessageAsync(phone, pushName ?? "Cliente", text);
     }
     catch (Exception ex) { logger.LogError(ex, "Erro no webhook"); }
     return Results.Ok();
 });
-
-app.MapGet("/api/antiban/stats", (AntibanService antiban) => Results.Ok(antiban.GetStats()));
 
 app.Run();

@@ -32,4 +32,8 @@ public class Respondent
     // Watchdog / Recovery
     public int? RetryCount { get; set; } = 0;
     public DateTime? LastRetryAt { get; set; }
+    
+    // Novos campos para o fluxo web
+    public string Source { get; set; } = "web"; // "web" ou "whatsapp"
+    public DateTime? WhatsappSentAt { get; set; } // Quando o cliente enviou pelo WhatsApp
 }
